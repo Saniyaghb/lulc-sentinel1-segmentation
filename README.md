@@ -29,7 +29,10 @@ pip install -r requirements.txt
 Internet is required, also on the first training run (ImageNet encoder weights are downloaded).
 A GPU is recommended for training; prediction runs on a CPU.
 
-**Links:** dataset: `<ADD LINK>`  |  trained weights (`lulc_unet.pt`, place in `models/`): `<ADD LINK>`
+**Links**
+- Dataset (tiles, index, previews, description): https://huggingface.co/datasets/Saniya41/lulc-sentinel1-dataset
+- Trained weights (`lulc_unet.pt`, place in `models/`): https://huggingface.co/Saniya41/lulc-sentinel1-unet
+- Code, notebook, README: https://github.com/Saniyaghb/lulc-sentinel1-segmentation
 
 ## Run the prototype
 ```bash
@@ -47,8 +50,8 @@ python -W ignore case_study.py --name vienna --lat 48.21 --lon 16.37 --start 202
 | 4 (vegetation merged) | 82.5 % | 0.657 |
 | **3 (final model, with flip averaging)** | **88.0 %** | **0.776** |
 
-Grouping the classes that SAR cannot separate (trees, grass, cropland, bare soil) is what raises the accuracy. Always state this when
-quoting the 88 %; the 6-class result is reported as well. Per-city accuracy ranges from 73 % (Denver) to 96 % (Santiago).
+Grouping the classes that SAR cannot separate (trees, grass, cropland, bare soil) is what raises the accuracy to 88 %;
+the 6-class result (about 70 %) is reported as well. Per-city accuracy ranges from 73 % (Denver) to 96 % (Santiago).
 
 ## Model comparison
 Every trained model is listed by `python compare_runs.py` (reads all `models/**/*_results.json`, writes `outputs/model_comparison.csv/.png`).
@@ -83,7 +86,8 @@ python eda.py --data data
 python run_search.py --stage archs --epochs 60 --bs 32
 python train.py --data data --epochs 60 --bs 32 --scheme 3 --arch unet --encoder resnet50 --features rich \
        --dropout 0.2 --aug 0.05 --weight-decay 1e-3 --samples-per-tile 8 --out models/lulc_unet.pt
-python train.py ... --speckle 5 --out models/variants/speckle5.pt
+python train.py --data data --epochs 60 --bs 32 --scheme 3 --arch unet --encoder resnet50 --features rich \
+       --dropout 0.2 --aug 0.05 --weight-decay 1e-3 --samples-per-tile 8 --speckle 5 --out models/variants/speckle5.pt
 python analysis.py --data data --model models/lulc_unet.pt --scheme 3 --tta
 python compare_runs.py
 python case_study.py --name vienna --lat 48.21 --lon 16.37 --start 2023-01 --scheme 3 --model models/lulc_unet.pt
@@ -131,5 +135,5 @@ A model must be evaluated and used with the class scheme it was trained with (`-
 - Labels are a single-year (2021) model-derived map, so "accuracy" is agreement with WorldCover. The monthly maps show how the model
   responds to SAR change, not independently verified monthly truth. The Esri map used in the case study is also model-derived.
 - SAR confuses grass, crop and shrub; built-up versus trees and bare ground versus water are other typical errors. Built-up area is overestimated by about 3.5 points.
-- Training uses 2021 only; other years and very different regions (for example Denver, 73 %) reduce accuracy.
+- Training uses 2021 only (the case studies use 2023, a year not seen in training); other years and very different regions (for example Denver, 73 %) reduce accuracy.
 - True change is zero in the reference labels, so `analysis.py` shows how much false change the pipeline produces (about 0.5 percentage points for 3 classes); real change should exceed that level to be trusted.
