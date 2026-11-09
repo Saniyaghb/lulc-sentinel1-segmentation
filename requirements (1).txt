@@ -1,0 +1,16 @@
+numpy
+scipy
+pandas
+matplotlib
+tqdm
+torch
+torchvision
+segmentation-models-pytorch==0.6.0
+pystac-client
+planetary-computer
+odc-stac
+odc-geo
+rioxarray
+xarray
+dask[array]
+jupyter
